@@ -1,0 +1,8 @@
+{
+  "name": "opsx-omc-bridge",
+  "description": "OpenSpec planning artifacts를 Oh My ClaudeCode 실행 모드로 자동 위임하는 브릿지 플러그인. quick(간단한 작업 → autopilot)과 deploy(복잡한 작업 → team/ralph)를 제공한다.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Sam"
+  }
+}
