@@ -1,96 +1,96 @@
 ---
 name: quick
-description: OpenSpec에서 준비된 간단한 변경사항을 Oh My ClaudeCode(OMC)의 autopilot으로 바로 위임하는 브릿지 스킬. 사용자가 "빠르게 구현해", "이거 바로 적용해", "autopilot으로 넘겨", "opsx 적용", "스펙 구현 시작" 같은 표현을 사용하거나, OpenSpec change 폴더에 tasks.md가 준비되어 있고 단순 구현만 남은 상황에서 트리거한다. 3개 이하의 태스크, 단일 도메인, 병렬화가 불필요한 작업에 적합하다.
+description: Bridge skill that delegates simple OpenSpec changes to Oh My ClaudeCode (OMC) autopilot mode. Triggered when user says "implement quickly", "apply now", "delegate to autopilot", "apply opsx", "start spec implementation", or when an OpenSpec change folder has tasks.md ready with only straightforward implementation remaining. Best for 3 or fewer tasks, single domain, no parallelization needed.
 ---
 
 # OpenSpec → OMC Quick Bridge
 
-OpenSpec의 planning 산출물이 준비된 간단한 작업을 OMC autopilot으로 넘기는 브릿지 스킬이다.
-수동으로 tasks.md를 복사-붙이기하거나 컨텍스트를 재설명하는 과정을 제거하는 것이 목적이다.
+Bridge skill that hands off simple OpenSpec planning artifacts to OMC autopilot.
+Eliminates the manual copy-paste of tasks.md and context re-explanation.
 
-## 언제 이 스킬을 사용하는가
+## When to use
 
-- OpenSpec change 폴더에 tasks.md가 존재하고 태스크가 3개 이하일 때
-- 단일 도메인 변경 (파일 수정 범위가 좁음)
-- 병렬 에이전트가 필요 없는 직선적 작업
+- OpenSpec change folder has tasks.md with 3 or fewer tasks
+- Single domain change (narrow file modification scope)
+- Linear work that does not require parallel agents
 
-## 실행 흐름
+## Execution flow
 
-### Step 1: 대상 change 식별
+### Step 1: Identify target change
 
-`openspec/changes/` 디렉토리를 스캔해서 active change 목록을 확인한다.
+Scan `openspec/changes/` directory for active changes.
 
 ```bash
 ls -d openspec/changes/*/tasks.md 2>/dev/null | grep -v archive
 ```
 
-- change가 1개면 자동 선택
-- 여러 개면 사용자에게 어떤 change를 구현할지 확인
-- 없으면 "먼저 /opsx:propose 또는 /opsx:ff로 스펙을 준비하세요"라고 안내하고 중단
+- If exactly 1 change exists, select it automatically
+- If multiple exist, ask the user which change to implement
+- If none exist, guide user to run `/opsx:propose` or `/opsx:ff` first and stop
 
-### Step 2: 산출물 검증
+### Step 2: Validate artifacts
 
-선택된 change 폴더에서 최소 필요 파일을 확인한다:
+Check minimum required files in the selected change folder:
 
 ```bash
 CHANGE_DIR="openspec/changes/<change-name>"
-# 필수: tasks.md
+# Required: tasks.md
 test -f "$CHANGE_DIR/tasks.md" || echo "MISSING: tasks.md"
-# 권장: proposal.md (컨텍스트용)
-test -f "$CHANGE_DIR/proposal.md" || echo "WARNING: proposal.md 없음 - 컨텍스트가 부족할 수 있음"
+# Recommended: proposal.md (for context)
+test -f "$CHANGE_DIR/proposal.md" || echo "WARNING: proposal.md missing - context may be insufficient"
 ```
 
-tasks.md가 없으면 중단한다. proposal.md가 없으면 경고만 하고 진행한다.
+If tasks.md is missing, stop. If proposal.md is missing, warn and proceed.
 
-### Step 3: 컨텍스트 수집
+### Step 3: Gather context
 
-다음 순서로 파일을 읽어서 구현 컨텍스트를 조립한다:
+Read files in order to assemble implementation context:
 
-1. `proposal.md` — 변경의 동기와 범위 (Why/What)
-2. `design.md` — 기술적 접근 방식 (How) — 있으면 읽고, 없으면 스킵
-3. `tasks.md` — 구현 체크리스트 (전문 읽기)
+1. `proposal.md` — Motivation and scope (Why/What)
+2. `design.md` — Technical approach (How) — read if present, skip if absent
+3. `tasks.md` — Implementation checklist (read in full)
 
-읽은 내용에서 다음을 추출한다:
-- **목표 요약**: proposal.md의 Intent/Why 섹션에서 1-2문장
-- **기술 제약**: design.md의 주요 결정사항 (엔진 선택, 패턴 등)
-- **미완료 태스크**: tasks.md에서 `- [ ]`인 항목만 필터링
+Extract the following:
+- **Goal summary**: 1-2 sentences from the Intent/Why section of proposal.md
+- **Technical constraints**: Key decisions from design.md (engine choice, patterns, etc.)
+- **Pending tasks**: Filter only `- [ ]` items from tasks.md
 
-### Step 4: OMC autopilot 위임
+### Step 4: Delegate to OMC autopilot
 
-수집한 컨텍스트를 하나의 autopilot 지시로 조합한다. 핵심 원칙:
+Compose gathered context into a single autopilot instruction. Key principles:
 
-- tasks.md의 원문을 직접 참조시킨다 (요약하지 않음)
-- design.md의 제약사항을 명시적으로 전달한다
-- 체크리스트 형태를 유지해서 OMC가 진행 상황을 추적할 수 있게 한다
+- Reference tasks.md verbatim (do not summarize)
+- Explicitly pass design.md constraints
+- Maintain checklist format so OMC can track progress
 
-구성할 프롬프트 구조:
+Prompt structure to compose:
 
 ```
-autopilot 다음 작업을 구현해줘.
+autopilot Implement the following changes.
 
-## 배경
-[proposal.md에서 추출한 1-2문장 요약]
+## Background
+[1-2 sentence summary extracted from proposal.md]
 
-## 기술 제약
-[design.md에서 추출한 핵심 결정사항. 없으면 이 섹션 생략]
+## Technical Constraints
+[Key decisions from design.md. Omit this section if design.md is absent]
 
-## 태스크
-[tasks.md의 미완료 항목 전문]
+## Tasks
+[Full text of pending items from tasks.md]
 
-## 지침
-- 각 태스크 완료 시 tasks.md의 해당 항목을 [x]로 체크할 것
-- design.md의 아키텍처 결정을 반드시 따를 것
-- 기존 테스트가 있으면 깨지지 않는지 확인할 것
+## Guidelines
+- Check off each task as [x] in tasks.md upon completion
+- Strictly follow architectural decisions from design.md
+- Verify existing tests are not broken
 ```
 
-### Step 5: 완료 후 안내
+### Step 5: Post-completion guidance
 
-OMC autopilot이 완료되면 사용자에게 다음 단계를 안내한다:
+Once OMC autopilot completes, guide the user to next steps:
 
-- "구현이 완료되었습니다. `/opsx:verify`로 스펙 대비 검증하거나, `/opsx:archive`로 아카이빙할 수 있습니다."
+- "Implementation complete. You can run `/opsx:verify` to validate against the spec, or `/opsx:archive` to archive."
 
-## 주의사항
+## Notes
 
-- 이 스킬은 OpenSpec의 `/opsx:apply`를 대체하는 것이 아니라, OMC의 자율 실행 능력을 활용하는 대안 경로이다.
-- tasks.md에 4개 이상의 태스크가 있거나, 여러 도메인에 걸친 변경이면 `deploy` 스킬 사용을 권장한다.
-- OMC가 설치되어 있지 않으면 이 스킬은 동작하지 않는다. 일반 `/opsx:apply`를 안내한다.
+- This skill is not a replacement for OpenSpec's `/opsx:apply` — it is an alternative path leveraging OMC's autonomous execution.
+- If tasks.md has 4+ tasks or changes span multiple domains, recommend the `deploy` skill instead.
+- If OMC is not installed, this skill cannot run. Guide user to standard `/opsx:apply`.
