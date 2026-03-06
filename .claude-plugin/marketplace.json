@@ -9,7 +9,7 @@
     {
       "name": "opsx-omc-bridge",
       "description": "Bridge plugin that automates handoff from OpenSpec specs (proposal, design, tasks) to OMC execution modes (autopilot, team, ralph)",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source": "./",
       "author": {
         "name": "KyongSik Yoon",

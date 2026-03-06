@@ -1,7 +1,7 @@
 {
   "name": "opsx-omc-bridge",
   "description": "Bridge plugin that automatically delegates OpenSpec planning artifacts to Oh My ClaudeCode execution modes. Provides quick (simple tasks → autopilot) and deploy (complex tasks → team/ralph).",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "KyongSik Yoon",
     "email": "sam1287@gmail.com"
