@@ -3,6 +3,7 @@
   "description": "Bridge plugin that automatically delegates OpenSpec planning artifacts to Oh My ClaudeCode execution modes. Provides quick (simple tasks → autopilot) and deploy (complex tasks → team/ralph).",
   "version": "0.1.0",
   "author": {
-    "name": "Sam"
+    "name": "KyongSik Yoon",
+    "email": "sam1287@gmail.com"
   }
 }
