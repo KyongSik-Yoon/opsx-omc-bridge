@@ -85,9 +85,22 @@ autopilot Implement the following changes.
 
 ### Step 5: Post-completion guidance
 
-Once OMC autopilot completes, guide the user to next steps:
+Once OMC autopilot completes successfully, present the user with a choice for the next step:
 
-- "Implementation complete. You can run `/opsx:verify` to validate against the spec, or `/opsx:archive` to archive."
+```
+Implementation complete. What would you like to do next?
+
+1. /opsx:verify — Validate the implementation against the spec
+2. /opsx:archive — Archive this change (skip verification)
+3. Skip — Do nothing for now
+
+Choose [1/2/3]:
+```
+
+Use `AskUserQuestion` to present this choice. Based on the user's selection:
+- **1 (verify)**: Invoke the `/opsx:verify` skill
+- **2 (archive)**: Invoke the `/opsx:archive` skill
+- **3 (skip)**: End with no further action
 
 ## Notes
 

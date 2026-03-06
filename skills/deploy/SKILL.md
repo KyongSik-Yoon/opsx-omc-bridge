@@ -170,10 +170,23 @@ To change strategy, say "switch to team" or "use autopilot instead".
 Once OMC execution completes:
 
 1. Check tasks.md completion status — report any remaining incomplete items
-2. Guide to next steps:
-   - `/opsx:verify` — Validate implementation against delta spec scenarios
-   - `/opsx:archive` — Archive after confirming completion
-   - "If additional changes are needed, add tasks to tasks.md and run this skill again"
+2. If incomplete items remain, inform the user and suggest running this skill again
+3. If all tasks are complete, present the user with a choice for the next step:
+
+```
+All tasks complete. What would you like to do next?
+
+1. /opsx:verify — Validate implementation against delta spec scenarios
+2. /opsx:archive — Archive this change (skip verification)
+3. Skip — Do nothing for now
+
+Choose [1/2/3]:
+```
+
+Use `AskUserQuestion` to present this choice. Based on the user's selection:
+- **1 (verify)**: Invoke the `/opsx:verify` skill
+- **2 (archive)**: Invoke the `/opsx:archive` skill
+- **3 (skip)**: End with no further action
 
 ## Notes
 
