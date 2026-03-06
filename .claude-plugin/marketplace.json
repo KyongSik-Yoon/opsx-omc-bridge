@@ -1,0 +1,23 @@
+{
+  "name": "opsx-omc-bridge",
+  "description": "Automatically bridge OpenSpec planning artifacts to Oh My ClaudeCode execution modes",
+  "owner": {
+    "name": "KyongSik Yoon",
+    "email": "sam1287@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "opsx-omc-bridge",
+      "description": "Bridge plugin that automates handoff from OpenSpec specs (proposal, design, tasks) to OMC execution modes (autopilot, team, ralph)",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "KyongSik Yoon",
+        "email": "sam1287@gmail.com"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/KyongSik-Yoon/opsx-omc-bridge",
+      "tags": ["openspec", "omc", "bridge", "automation", "handoff"]
+    }
+  ]
+}
