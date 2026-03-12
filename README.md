@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-A Claude Code plugin that automatically bridges **OpenSpec** planning artifacts to **Oh My ClaudeCode (OMC)** execution modes — eliminating the manual handoff between spec preparation and implementation.
+A Claude Code plugin that automatically bridges **OpenSpec** planning artifacts to **Oh My ClaudeCode (OMC)** execution modes and orchestration strategies — eliminating the manual handoff between spec preparation and implementation.
 
 ## Problem
 
@@ -17,10 +17,10 @@ This plugin automates the entire handoff.
 
 ## Skills
 
-| Skill | Use Case | OMC Mode | Trigger Examples |
-|-------|----------|----------|-----------------|
+| Skill | Use Case | OMC Mode / Strategy | Trigger Examples |
+|-------|----------|----------------------|-----------------|
 | **quick** | ≤ 3 tasks, single domain | `autopilot` | "implement quickly", "apply now" |
-| **deploy** | 4+ tasks, multi-phase/domain | `team` or `ralph` (auto-selected) | "run with team", "delegate to ralph" |
+| **deploy** | 4+ tasks, multi-phase/domain | `ralph` by default, `hybrid` for sequential phases with parallelizable segments, `team` for mostly independent work | "run with team", "delegate to ralph" |
 
 ### quick
 
@@ -28,7 +28,7 @@ Best for straightforward changes. Reads OpenSpec artifacts, assembles context, a
 
 ### deploy
 
-Best for complex changes. Analyzes task structure (phase count, dependencies, domain spread) and automatically selects the optimal execution strategy:
+Best for complex changes. Performs a preflight pass, prefers a compacted execution brief when present, analyzes task structure (phase count, dependencies, domain spread), and automatically selects the optimal execution strategy:
 
 | Condition | OMC Mode | Rationale |
 |-----------|----------|-----------|
@@ -36,7 +36,17 @@ Best for complex changes. Analyzes task structure (phase count, dependencies, do
 | Independent tasks within a phase | `team N:executor` | Parallel processing |
 | Single phase, 4+ tasks | `team N:executor` | Simple parallelization |
 | Refactoring requiring iterative verification | `ralph` | Repeats until architect approval |
-| Sequential phases + parallelizable tasks within | `ralph` + `team` per phase | Hybrid approach |
+| Sequential phases + parallelizable tasks within | `ralph` + `team` per phase | Hybrid approach with phase gates |
+
+### Preflight and Compaction
+
+Before delegating, `deploy` should:
+
+1. Resolve the canonical artifact set for the target change
+2. Prefer a compacted execution brief when one exists, such as `implementation-brief.md`, `brief.md`, or another user-designated handoff doc
+3. Treat `proposal.md`, `design.md`, delta specs, and `tasks.md` as source-of-truth evidence behind that brief
+4. Extract a phase graph and mark which phases are safe to parallelize
+5. Present the recommended execution plan before delegation
 
 ## Workflow
 
@@ -47,7 +57,7 @@ Best for complex changes. Analyzes task structure (phase count, dependencies, do
         ↓
 "implement quickly"                   ← quick skill → autopilot
 or
-"run with team"                       ← deploy skill → team/ralph
+"run with team"                       ← deploy skill → ralph / hybrid / team
         ↓
 /opsx:verify                          ← Verify against spec
         ↓
